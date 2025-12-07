@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import WeatherWidget from './components/WeatherWidget';
-import MotorStatsWidget from './components/MotorStatsWidget';
-import RadioWidget from './components/RadioWidget';
-import AlertBanner, { AlertType } from './components/AlertBanner';
+import WeatherWidget from './WeatherWidget';
+import MotorStatsWidget from './MotorStatsWidget';
+import RadioWidget from './RadioWidget';
+import AlertBanner, { AlertType } from './AlertBanner';
 import { Battery, Navigation, Power, PlayCircle } from 'lucide-react';
 import { Cloud, CloudRain, Sun, CloudLightning, CloudSnow, Wind } from 'lucide-react';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import Card from './components/Card';
+import Card from './Card';
 import { Wind, Umbrella, MapPin, Loader2, Thermometer } from 'lucide-react';
 
 interface WeatherData {

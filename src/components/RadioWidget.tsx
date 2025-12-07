@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import Card from './components/Card';
+import Card from './Card';
 import { Play, Pause, SkipBack, SkipForward, Music2, Volume2 } from 'lucide-react';
 
 // Enhanced Station List

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Card from './components/Card';
+import Card from './Card';
 import { Navigation, Activity, ArrowUp } from 'lucide-react';
 
 interface MotorStatsWidgetProps {
