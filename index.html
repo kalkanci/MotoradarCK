@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Motosiklet sürücüleri için akıllı navigasyon ve gerçek zamanlı seyahat asistanı">
+  <meta name="theme-color" content="#1a1a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MotoNav">
+  
+  <title>MotoNavigator - Motosiklet Seyahat Asistanı</title>
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="preconnect" href="https://api.openweathermap.org">
+  <link rel="preconnect" href="https://nominatim.openstreetmap.org">
+  
+  <!-- Leaflet.js CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+        crossorigin=""/>
+  
+  <!-- Leaflet.js JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+          crossorigin=""></script>
+</head>
+<body>
+  <!-- Ana Harita Konteyneri -->
+  <div id="app" class="app-container">
+    
+    <!-- Üst Bar - Durum ve Hızlı Bilgiler -->
+    <header class="top-bar">
+      <div class="status-indicators">
+        <div class="status-item" id="gps-status">
+          <i class="fas fa-map-marker-alt status-icon"></i>
+          <span class="status-text">Konum alınıyor...</span>
+        </div>
+        <div class="status-item" id="connection-status">
+          <i class="fas fa-wifi status-icon"></i>
+          <span class="status-text">Çevrimiçi</span>
+        </div>
+      </div>
+      <button class="menu-button" id="menu-button" aria-label="Menü">
+        <i class="fas fa-bars menu-icon"></i>
+      </button>
+    </header>
+
+    <!-- Ana İçerik Alanı -->
+    <main class="main-content" id="main-content">
+      <!-- Ana Sayfa - Konum Bilgileri (Varsayılan) -->
+      <div class="page" id="home-page">
+        <div class="info-container">
+          <!-- Hava Durumu Widget -->
+          <div class="widget weather-widget" id="weather-widget">
+            <div class="widget-header">
+              <i class="fas fa-cloud-sun widget-icon"></i>
+              <span class="widget-title">Hava Durumu</span>
+            </div>
+            <div class="widget-content">
+              <div class="weather-main">
+                <span class="temperature" id="temperature">--°C</span>
+                <span class="condition" id="condition">Yükleniyor...</span>
+              </div>
+              <div class="weather-details">
+                <div class="detail-item">
+                  <span class="detail-label">Rüzgar</span>
+                  <span class="detail-value" id="wind-speed">-- km/h</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Yağmur Riski</span>
+                  <span class="detail-value" id="rain-risk">--%</span>
+                </div>
+              </div>
+              <div class="motorcycle-warning" id="motorcycle-warning" style="display: none;">
+                <i class="fas fa-exclamation-triangle warning-icon"></i>
+                <span class="warning-text"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Yakıt Widget -->
+          <div class="widget fuel-widget" id="fuel-widget">
+            <div class="widget-header">
+              <i class="fas fa-gas-pump widget-icon"></i>
+              <span class="widget-title">Yakıt İstasyonları</span>
+            </div>
+            <div class="widget-content">
+              <div class="fuel-station-list" id="fuel-stations">
+                <div class="fuel-station-item">
+                  <span class="station-name">Yükleniyor...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Trafik Widget -->
+          <div class="widget traffic-widget" id="traffic-widget">
+            <div class="widget-header">
+              <i class="fas fa-traffic-light widget-icon"></i>
+              <span class="widget-title">Trafik Durumu</span>
+            </div>
+            <div class="widget-content">
+              <div class="traffic-status" id="traffic-status">
+                <span class="traffic-level" id="traffic-level">Normal</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Konum Bilgisi Widget -->
+          <div class="widget location-widget" id="location-widget">
+            <div class="widget-header">
+              <i class="fas fa-map-marker-alt widget-icon"></i>
+              <span class="widget-title">Konum Bilgisi</span>
+            </div>
+            <div class="widget-content">
+              <div class="location-info" id="location-info">
+                <div class="info-row">
+                  <span class="info-label">Enlem:</span>
+                  <span class="info-value" id="location-lat">--</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Boylam:</span>
+                  <span class="info-value" id="location-lon">--</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Doğruluk:</span>
+                  <span class="info-value" id="location-accuracy">-- m</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigasyon Sayfası - Harita -->
+      <div class="page" id="navigation-page" style="display: none;">
+        <div class="map-container" id="map-container">
+          <div id="map" class="map-view"></div>
+          
+          <!-- Harita Üzerinde Widget'lar -->
+          <div class="map-overlay">
+            <!-- Rota Widget buraya eklenecek -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Alt Navigasyon Bar -->
+    <nav class="bottom-nav">
+      <button class="nav-button active" data-page="home" aria-label="Ana Sayfa">
+        <i class="fas fa-home nav-icon"></i>
+        <span class="nav-label">Ana Sayfa</span>
+      </button>
+      <button class="nav-button" data-page="navigation" aria-label="Navigasyon">
+        <i class="fas fa-route nav-icon"></i>
+        <span class="nav-label">Navigasyon</span>
+      </button>
+      <button class="nav-button" data-page="maintenance" aria-label="Bakım">
+        <i class="fas fa-wrench nav-icon"></i>
+        <span class="nav-label">Bakım</span>
+      </button>
+      <button class="nav-button" data-page="emergency" aria-label="Acil Durum">
+        <i class="fas fa-exclamation-triangle nav-icon emergency-icon"></i>
+        <span class="nav-label">Acil</span>
+      </button>
+    </nav>
+
+    <!-- Yan Menü (Drawer) -->
+    <aside class="side-menu" id="side-menu">
+      <div class="menu-header">
+        <h2 class="menu-title">MotoNavigator</h2>
+        <button class="close-button" id="close-menu" aria-label="Menüyü Kapat">
+        <i class="fas fa-times"></i>
+      </button>
+      </div>
+      <nav class="menu-nav">
+        <a href="#" class="menu-item" data-action="settings">
+          <i class="fas fa-cog menu-item-icon"></i>
+          <span class="menu-item-text">Ayarlar</span>
+        </a>
+        <a href="#" class="menu-item" data-action="profile">
+          <i class="fas fa-user menu-item-icon"></i>
+          <span class="menu-item-text">Profil</span>
+        </a>
+        <a href="#" class="menu-item" data-action="history">
+          <i class="fas fa-history menu-item-icon"></i>
+          <span class="menu-item-text">Seyahat Geçmişi</span>
+        </a>
+        <a href="#" class="menu-item" data-action="about">
+          <i class="fas fa-info-circle menu-item-icon"></i>
+          <span class="menu-item-text">Hakkında</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Overlay (Menü açıkken) -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Yükleme Göstergesi -->
+    <div class="loading-spinner" id="loading-spinner" style="display: none;">
+      <div class="spinner"></div>
+      <p class="loading-text">Yükleniyor...</p>
+    </div>
+
+    <!-- Toast Bildirimleri -->
+    <div class="toast-container" id="toast-container"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/scripts/api.js"></script>
+  <script src="/scripts/map.js"></script>
+  <script src="/scripts/notifications.js"></script>
+  <script src="/scripts/app.js"></script>
+</body>
+</html>
+

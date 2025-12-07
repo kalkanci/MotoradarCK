@@ -1,0 +1,25 @@
+{
+  "name": "moto-navigator-pwa",
+  "version": "1.0.0",
+  "description": "Motosiklet odaklı akıllı navigasyon ve seyahat asistanı PWA",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx http-server . -p 8080 -c-1",
+    "build": "workbox generateSW workbox-config.js",
+    "start": "npm run dev"
+  },
+  "keywords": [
+    "pwa",
+    "motorcycle",
+    "navigation",
+    "mobility"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "workbox-cli": "^7.0.0",
+    "http-server": "^14.1.1"
+  },
+  "dependencies": {}
+}
+
